@@ -27,9 +27,10 @@ ARDUINO = $(AVR)/cores/arduino
 AVR_TOOLS_PATH = $(INSTALL_DIR)/hardware/tools/avr/bin
 SRC = $(ARDUINO)/hooks.c $(ARDUINO)/wiring.c $(ARDUINO)/wiring_analog.c \
     $(ARDUINO)/wiring_digital.c $(ARDUINO)/wiring_pulse.c \
-	$(ARDUINO)/wiring_shift.c $(ARDUINO)/WInterrupts.c
+    $(ARDUINO)/wiring_shift.c $(ARDUINO)/WInterrupts.c
 CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/HardwareSerial0.cpp \
-    $(ARDUINO)/WMath.cpp $(ARDUINO)/Print.cpp $(ARDUINO)/abi.cpp
+    $(ARDUINO)/WMath.cpp $(ARDUINO)/Print.cpp $(ARDUINO)/abi.cpp \
+    $(ARDUINO)/new.cpp
 FORMAT = ihex
 
 # Name of this Makefile (used for "make depend").
@@ -47,15 +48,16 @@ CDEFS = -DF_CPU=$(BUILD_F_CPU)
 CXXDEFS = -DF_CPU=$(BUILD_F_CPU)
 
 # Place -I options here
-CINCS = -I$(ARDUINO) -I$(AVR)/variants/$(VARIANT)
-CXXINCS = -I$(ARDUINO) -I$(AVR)/variants/$(VARIANT)
+CINCS = -I$(ARDUINO) -I$(AVR)/variants/$(VARIANT) -I$(abspath Models) \
+    -I$(abspath IO)
+CXXINCS = $(CINCS)
 
 # Compiler flag to set the C Standard level.
 # c89 - "ANSI" C
 # gnu89 - c89 plus GCC extensions
 # c99 - ISO C99 standard (not yet fully implemented)
 # gnu99 - c99 plus GCC extensions
-CSTANDARD = -std=gnu99
+CSTANDARD = -std=gnu++11
 CDEBUG = -g$(DEBUG)
 CWARN = -Wall -Wstrict-prototypes
 CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
