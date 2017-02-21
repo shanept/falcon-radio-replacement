@@ -11,7 +11,7 @@
 TARGET = $(notdir $(CURDIR))
 # INSTALL_DIR = /Applications/Arduino.app/Contents/Resources/Java
 INSTALL_DIR = /opt/arduino-1.6.9
-PORT = /dev/ttyACM0
+PORT = /dev/ttyACM1
 
 UPLOAD_SPEED = 115200
 UPLOAD_PROTOCOL = arduino
@@ -30,7 +30,11 @@ SRC = $(ARDUINO)/hooks.c $(ARDUINO)/wiring.c $(ARDUINO)/wiring_analog.c \
     $(ARDUINO)/wiring_shift.c $(ARDUINO)/WInterrupts.c
 CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/HardwareSerial0.cpp \
     $(ARDUINO)/WMath.cpp $(ARDUINO)/Print.cpp $(ARDUINO)/abi.cpp \
-    $(ARDUINO)/new.cpp
+    $(ARDUINO)/new.cpp $(wildcard IO/*.cpp) $(wildcard Models/*.cpp) \
+    $(wildcard Controls/SN74HC165N/*.cpp) \
+    $(wildcard $(INSTALL_DIR)/libraries/CAN_BUS_Shield/*.cpp) \
+    $(wildcard $(AVR)/libraries/SPI/src/*.cpp)
+
 FORMAT = ihex
 
 # Name of this Makefile (used for "make depend").
@@ -49,7 +53,10 @@ CXXDEFS = -DF_CPU=$(BUILD_F_CPU)
 
 # Place -I options here
 CINCS = -I$(ARDUINO) -I$(AVR)/variants/$(VARIANT) -I$(abspath Models) \
-    -I$(abspath IO)
+    -I$(abspath IO) -I$(INSTALL_DIR)/libraries/CAN_BUS_Shield \
+    -I$(AVR)/libraries/SPI/src
+#    $(addprefix -I, $(addsuffix /src/, $(wildcard $(AVR)/libraries/*)))
+
 CXXINCS = $(CINCS)
 
 # Compiler flag to set the C Standard level.
@@ -58,13 +65,14 @@ CXXINCS = $(CINCS)
 # c99 - ISO C99 standard (not yet fully implemented)
 # gnu99 - c99 plus GCC extensions
 CSTANDARD = -std=gnu++11
+CXXSTANDARD = -std=gnu++11
 CDEBUG = -g$(DEBUG)
 CWARN = -Wall -Wstrict-prototypes
 CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
 
 CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CSTANDARD) $(CEXTRA)
-CXXFLAGS = $(CDEFS) $(CINCS) -O$(OPT)
+CXXFLAGS = $(CXXDEFS) $(CINCS) -O$(OPT) $(CXXSTANDARD)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs
 LDFLAGS = -lm
 
