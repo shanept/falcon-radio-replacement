@@ -11,7 +11,7 @@
 TARGET = $(notdir $(CURDIR))
 # INSTALL_DIR = /Applications/Arduino.app/Contents/Resources/Java
 INSTALL_DIR = /opt/arduino-1.6.9
-PORT = /dev/ttyACM1
+PORT = /dev/ttyACM0
 
 UPLOAD_SPEED = 115200
 UPLOAD_PROTOCOL = arduino
@@ -31,7 +31,8 @@ SRC = $(ARDUINO)/hooks.c $(ARDUINO)/wiring.c $(ARDUINO)/wiring_analog.c \
 CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/HardwareSerial0.cpp \
     $(ARDUINO)/WMath.cpp $(ARDUINO)/Print.cpp $(ARDUINO)/abi.cpp \
     $(ARDUINO)/new.cpp $(wildcard IO/*.cpp) $(wildcard Models/*.cpp) \
-    $(wildcard Controls/SN74HC165N/*.cpp) \
+    $(wildcard Abstractions/*/*.cpp) \
+    $(wildcard Controls/*.cpp) \
     $(wildcard $(INSTALL_DIR)/libraries/CAN_BUS_Shield/*.cpp) \
     $(wildcard $(AVR)/libraries/SPI/src/*.cpp)
 

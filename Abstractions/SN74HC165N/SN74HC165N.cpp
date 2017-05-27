@@ -4,7 +4,7 @@
 #include "SN74HC165N.h"
 #include "Arduino.h"
 
-namespace Controls {
+namespace Abstractions {
     SN74HC165N::~SN74HC165N() {
         delete[] buffer;
     };

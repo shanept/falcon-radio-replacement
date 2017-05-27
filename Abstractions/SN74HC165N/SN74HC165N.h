@@ -1,7 +1,7 @@
 #ifndef __SN74HC165N_H__
 #define __SN74HC165N_H__
 
-namespace Controls {
+namespace Abstractions {
     class SN74HC165N {
         private:
             int pLoadPin;
