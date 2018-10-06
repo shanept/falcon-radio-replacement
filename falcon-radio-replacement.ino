@@ -1,9 +1,22 @@
 #include "mcp_can.h"
 #include "IO/SerialInput.h"
 #include "IO/SerialOutput.h"
-#include "Controls/SN74HC165N/SN74HC165N.h"
+#include "Abstractions/SN74HC165N/SN74HC165N.h"
+#include "Abstractions/SN74HC595N/SN74HC595N.h"
+#include "Models/Message.h"
+#include "Controls.h"
 
-using Controls::SN74HC165N;
+#include "Controls/DoorLock.h"
+#include "Controls/Lights.h"
+#include "Controls/Distribution.h"
+
+using Abstractions::SN74HC165N;
+using Abstractions::SN74HC595N;
+using Controls::DoorLock;
+using Controls::Lights;
+using Controls::Distribution;
+//using Controls::Conditioning;
+using Models::Message;
 
 MCP_CAN *can;
 
@@ -11,8 +24,15 @@ IO::SerialInput *input;
 IO::SerialOutput *output;
 
 SN74HC165N *pins;
+SN74HC595N *leds;
 
-Models::Message m;
+Message *msg;
+
+// Define radio controls
+DoorLock *locks;
+Lights *lights;
+Distribution *dist;
+//Conditioning *aircon;
 
 void setup() {
     Serial.begin(115200);
@@ -29,41 +49,38 @@ void setup() {
         delay(100);
     }
 
-    pins = new SN74HC165N(5, 8, 6, 7);
+    msg = new Message(can);
+    msg->reset();
+
+    pins = new SN74HC165N(5, 8, 6, 7, 2);
     pins->init();
 
-    return;
+    leds = new SN74HC595N(3, 14, 4, 2, 9);
+    leds->init();
 
-    pinMode(2, INPUT);
-
-    input = new IO::SerialInput(&Serial);
-    output = new IO::SerialOutput(&Serial);
+    locks = new DoorLock(VPIN_LOCK, pins);
+    lights = new Lights(VPIN_LIGHT, pins);
+    dist = new Dist(
+        VPIN_DIST_FACE,
+        VPIN_DIST_FACE_FOOT,
+        VPIN_DIST_FOOT,
+        VPIN_DIST_WINDSCREEN_DEMISTER,
+        VPIN_DIST_WINDSCREEN_FOOT,
+        VPIN_DIST_REAR_DEMISTER,
+        VPIN_DIST_AIRCON,
+        VPIN_DIST_RECIRCULATE,
+        pins
+    );
+//    aircon = new Conditioning(PIN_TEMP, PIN_FAN);
 }
 
-unsigned char stmp[8] = {0, 0, 0, 0x40, 0, 0, 0, 0x1E};
-
 void loop() {
-    Serial.print("Polling...");
     pins->poll();
-    Serial.println("Done!");
 
-    if (pins->readPin(0)) {
-        Serial.println("Unlock Door");
-        can->sendMsgBuf(307, 0, 8, stmp);
-        Serial.println("Unlocked!");
-    }
+    locks->process(msg);
+    lights->process(msg);
+    dist->process(msg);
+//    aircon->process(msg);
 
-    delay(200);
-    return;
-    Serial.println("loop");
-
-    if (input->available()) {
-        Serial.println(" Reading data");
-        m = input->read();
-    }
-
-     Serial.println(" Writing data");
-    output->write(m);
-    Serial.println(" Data written");
-    delay(1000);
+    delay(20);
 }
