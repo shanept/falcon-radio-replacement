@@ -10,7 +10,7 @@
 ############################################################################
 TARGET = $(notdir $(CURDIR))
 # INSTALL_DIR = /Applications/Arduino.app/Contents/Resources/Java
-INSTALL_DIR = /opt/arduino-1.6.9
+INSTALL_DIR = /opt/arduino-1.8.7
 PORT = /dev/ttyACM0
 
 UPLOAD_SPEED = 115200
