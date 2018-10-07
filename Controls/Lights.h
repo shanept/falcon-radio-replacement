@@ -27,7 +27,7 @@ namespace Controls {
             isPressed = isDown;
 
             if (isDown) {
-                msg[3] |= 0x20;
+                msg->parts[3] |= 0x20;
             }
         }
     }

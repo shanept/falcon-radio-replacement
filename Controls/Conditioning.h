@@ -20,8 +20,8 @@ namespace Controls {
         float temp_perc = ((float) analogRead(temp_pin)) / 1024;
         float fan_perc  = ((float) analogRead(fan_pin)) / 1024;
 
-        msg[5] = (unsigned int) (temp_perc * 0x0F);
-        msg[6] = (unsigned int) (fan_perc  * 0x0E);
+        msg->parts[5] = (unsigned int) (temp_perc * 0x0F);
+        msg->parts[6] = (unsigned int) (fan_perc  * 0x0E);
     };
 
 }

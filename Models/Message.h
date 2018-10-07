@@ -15,23 +15,21 @@ namespace Models {
     };
 
     class Message {
-    protected:
-        INT32U id;
-        INT8U  parts[8];// = {0, 0, 0, 0, 0, 0, 0, 0};
+    public:
+        unsigned long id;
+        byte parts[8]; // = {0, 0, 0, 0, 0, 0, 0, 0};
 
+    protected:
         MCP_CAN *can;
         unsigned long last_sent;
 
     public:
-        Message(MCP_CAN *c, INT32U _id=0x307): id(_id), can(c), last_sent(0) {
+        Message(MCP_CAN *c, unsigned long _id=0x307): id(_id), can(c), last_sent(0) {
             reset();
         };
 
         bool send();
         void reset();
-
-        INT8U  operator[](int) const;
-        INT8U &operator[](int);
     };
 }
 

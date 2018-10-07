@@ -9,13 +9,14 @@
 #include "Controls/DoorLock.h"
 #include "Controls/Lights.h"
 #include "Controls/Distribution.h"
+#include "Controls/Conditioning.h"
 
 using Abstractions::SN74HC165N;
 using Abstractions::SN74HC595N;
 using Controls::DoorLock;
 using Controls::Lights;
 using Controls::Distribution;
-//using Controls::Conditioning;
+using Controls::Conditioning;
 using Models::Message;
 
 MCP_CAN *can;
@@ -32,13 +33,13 @@ Message *msg;
 DoorLock *locks;
 Lights *lights;
 Distribution *dist;
-//Conditioning *aircon;
+Conditioning *aircon;
 
 void setup() {
     Serial.begin(115200);
     Serial.println("Reboot!");
 
-    can = new MCP_CAN(10);
+    can = new MCP_CAN(CAN_SELECT);
     while (true) {
         if (CAN_OK == can->begin(CAN_500KBPS)) {
             Serial.println("CAN BUS Shield init ok.");
@@ -52,26 +53,37 @@ void setup() {
     msg = new Message(can);
     msg->reset();
 
-    pins = new SN74HC165N(5, 8, 6, 7, 2);
+    pins = new SN74HC165N(INPUT_LOAD, INPUT_ENABLE, INPUT_CLOCK, INPUT_CHAINOUT, 2);
     pins->init();
 
-    leds = new SN74HC595N(3, 14, 4, 2, 9);
+    leds = new SN74HC595N(LED_DATA, LED_CLOCK, LED_LATCH, 2, LED_OUTPUT_ENABLE);
     leds->init();
 
-    locks = new DoorLock(VPIN_LOCK, pins);
-    lights = new Lights(VPIN_LIGHT, pins);
-    dist = new Dist(
-        VPIN_DIST_FACE,
-        VPIN_DIST_FACE_FOOT,
-        VPIN_DIST_FOOT,
-        VPIN_DIST_WINDSCREEN_DEMISTER,
-        VPIN_DIST_WINDSCREEN_FOOT,
-        VPIN_DIST_REAR_DEMISTER,
-        VPIN_DIST_AIRCON,
-        VPIN_DIST_RECIRCULATE,
-        pins
+    locks = new DoorLock(VIPIN_LOCK, pins);
+    lights = new Lights(VIPIN_LIGHT, pins);
+    dist = new Distribution(
+        VIPIN_DIST_FACE,
+        VIPIN_DIST_FACE_FOOT,
+        VIPIN_DIST_FOOT,
+        VIPIN_DIST_WINDSCREEN_DEMISTER,
+        VIPIN_DIST_WINDSCREEN_FOOT,
+        VIPIN_DIST_REAR_DEMISTER,
+        VIPIN_DIST_AIRCON,
+        VIPIN_DIST_RECIRCULATE,
+
+        VOPIN_DIST_FACE,
+        VOPIN_DIST_FACE_FOOT,
+        VOPIN_DIST_FOOT,
+        VOPIN_DIST_WINDSCREEN_DEMISTER,
+        VOPIN_DIST_WINDSCREEN_FOOT,
+        VOPIN_DIST_REAR_DEMISTER,
+        VOPIN_DIST_AIRCON,
+        VOPIN_DIST_RECIRCULATE,
+
+        pins,
+        leds
     );
-//    aircon = new Conditioning(PIN_TEMP, PIN_FAN);
+    aircon = new Conditioning(PIN_TEMP, PIN_FAN);
 }
 
 void loop() {
@@ -80,7 +92,9 @@ void loop() {
     locks->process(msg);
     lights->process(msg);
     dist->process(msg);
-//    aircon->process(msg);
+    aircon->process(msg);
 
-    delay(20);
+    msg->send();
+    leds->flush();
+    delayMicroseconds(20);
 }

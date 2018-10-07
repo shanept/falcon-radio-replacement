@@ -11,25 +11,32 @@ namespace Controls {
 
     class DoorLock {
         private:
-            int pin;
-            SN74HC165N* pins;
+            int input_pin;
+            int output_pin;
+
+            SN74HC165N *pins;
+
             bool isPressed;
+            bool status;
 
         public:
-            DoorLock(int p, SN74HC165N *reg): pin(p), pins(reg), isPressed(false) {};
+            DoorLock(int ip, SN74HC165N *reg):
+                input_pin(ip), pins(reg), isPressed(false) {};
             void process(Message*);
     };
 
     void DoorLock::process(Message *msg) {
-        bool isDown = pins->readPin(pin);
+        bool isDown = pins->readPin(input_pin);
 
         if (isDown != isPressed) {
             isPressed = isDown;
 
             if (isDown) {
-                msg[3] |= 0x40;
+                msg->parts[3] |= 0x40;
             }
         }
+
+
     }
 
 };

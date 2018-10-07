@@ -14,19 +14,24 @@ namespace Models {
             return false;
         }
 
-                        // Output contents of message to screen
-                        Serial.print("(0x");
-                        Serial.print(id, HEX);
-                        Serial.print(")");
-                        for (int i = 0; i < 8; i++) {
-                            Serial.print("\t0x");
-                            Serial.print(parts[i], HEX);
-                        };
-                        Serial.println();
+        // Output contents of message to screen
+        Serial.print("(0x");
+        Serial.print(id, HEX);
+        Serial.print(")");
+        for (int i = 0; i < 8; i++) {
+            Serial.print("\t0x");
+            Serial.print(parts[i], HEX);
+        };
+        Serial.println();
 
         last_sent = secs;
 
-        return can->sendMsgBuf(id, 0, 0, 8, parts);
+        if (can->sendMsgBuf(id, 0, 0, 8, parts)) {
+            reset();
+            return true;
+        }
+
+        return false;
     };
 
     void Message::reset() {
@@ -35,14 +40,6 @@ namespace Models {
 
         id       = 0x307;       // Set radio ID
         parts[7] = 0x1E;        // Last bit always outputs 0x1E
-    };
-
-    INT8U Message::operator[](int i) const {
-        return parts[i];
-    };
-
-    INT8U& Message::operator[](int i) {
-        return parts[i];
     };
 };
 
